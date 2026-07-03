@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forumhub</title>
+    <style>
+        /* ----- Global Reset ----- */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #eec);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* ----- Layout ----- */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+        }
+
+        /* ----- Forum Sections ----- */
+        .forum-list {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        }
+
+        .forum-card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .forum-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .forum-card header {
+            background: #3498db;
+            color: #fff;
+            padding: 12px 16px;
+        }
+
+        .forum-card header h2 {
+            font-size: 1.25rem;
+        }
+
+        .forum-card .content {
+            padding: 16px;
+        }
+
+        .forum-card .content p {
+            margin-bottom: 12px;
+            color: #555;
+        }
+
+        .forum-card .content .stats {
+            font-size: 0.85rem;
+            color: #777;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* ----- Post Form ----- */
+        #post-form {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+
+        #post-form h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        #post-form textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        #post-form button {
+            margin-top: 10px;
+            padding: 10px 18px;
+            background: #2ecc71;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s ease;
+        }
+
+        #post-form button:hover {
+            background: #27ae60;
+        }
+
+        /* ----- Posts List ----- */
+        #posts-list {
+            margin-top: 20px;
+        }
+
+        .post-item {
+            background: #fafafa;
+            border-left: 4px solid #3498db;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .post-item .author {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .post-item .timestamp {
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .post-item .body {
+            margin-top: 8px;
+        }
+
+        /* ----- Responsive tweaks ----- */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            .forum-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Forumhub</h1>
+            <p>A simple community discussion board</p>
+        </header>
+
+        <!-- Forum Categories -->
+        <section class="forum-list">
+            <div class="forum-card">
+                <header><h2>General Discussion</h2></header>
+                <div class="content">
+                    <p>Talk about anything and everything.</p>
+                    <div class="stats">
+                        <span>Threads: 124</span>
+                        <span>Posts: 1,032</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="forum-card">
+                <header><h2>Technology</h2></header>
+                <div class="content">
+                    <p>Latest tech news, gadgets, and programming.</p>
+                    <div class="stats">
+                        <span>Threads: 87</span>
+                        <span>Posts: 721</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="forum-card">
+                <header><h2>Gaming</h2></header>
+                <div class="content">
+                    <p>Discuss games, strategies, and releases.</p>
+                    <div class="stats">
+                        <span>Threads: 56</span>
+                        <span>Posts: 489</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Post Form -->
+        <section id="post-form-section">
+            <h2>Create a New Post</h2>
+            <form id="post-form">
+                <textarea id="post-body" placeholder="What's on your mind?" required></textarea>
+                <button type="submit">Post</button>
+            </form>
+        </section>
+
+        <!-- Posts List -->
+        <section id="posts-list-section">
+            <h2>Recent Posts</h2>
+            <div id="posts-list"></div>
+        </section>
+    </div>
+
+    <script>
+        // Simple in‑memory storage for demo purposes
+        let posts = JSON.parse(localStorage.getItem('forumhubPosts')) || [];
+
+        // Render posts to the page
+        function renderPosts() {
+            const container = document.getElementById('posts-list');
+            container.innerHTML = '';
+
+            if (posts.length === 0) {
+                container.innerHTML = '<p>No posts yet. Be the first to start a conversation!</p>';
+                return;
+            }
+
+            // Show newest first
+            posts.slice().reverse().forEach(post => {
+                const postEl = document.createElement('div');
+                postEl.className = 'post-item';
+                postEl.innerHTML = `
+                    <div class="author">${post.author}</div>
+                    <div class="timestamp">${new Date(post.timestamp).toLocaleString()}</div>
+                    <div class="body">${post.body.replace(/\n/g, '<br>')}</div>
+                `;
+                container.appendChild(postEl);
+            });
+        }
+
+        // Handle form submission
+        document.getElementById('post-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const body = document.getElementById('post-body').value.trim();
+            if (!body) return;
+
+            // In a real app you would get the user's name from auth; here we use a placeholder
+            const author = 'Anonymous';
+            const newPost = {
+                id: Date.now(),
+                author,
+                body,
+                timestamp: new Date()
+            };
+
+            posts.push(newPost);
+            localStorage.setItem('forumhubPosts', JSON.stringify(posts));
+            document.getElementById('post-body').value = '';
+            renderPosts();
+        });
+
+        // Initial render
+        renderPosts();
+    </script>
+</body>
+</html>
